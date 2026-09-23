@@ -1,182 +1,262 @@
+import os
 import streamlit as st
 from streamlit_chat import message
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
-import os
 
-# Load environment variables
 load_dotenv()
 
-# Set page config
 st.set_page_config(
-    page_title="ByteBuddy - AI Chatbot",
-    page_icon="🤖",
+    page_title="ByteBuddy",
+    page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# Custom CSS
-st.markdown("""
-    <style>
-    .main {
-        padding-top: 2rem;
+# ---------- theme ----------
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
+
+def set_theme(theme: str):
+    st.session_state.theme = theme
+    st.rerun()
+
+light_theme = """
+<style>
+    :root {
+        --bg: #f4f7fb;
+        --panel: rgba(255,255,255,0.8);
+        --panel-strong: #ffffff;
+        --card: #ffffff;
+        --ink: #101828;
+        --muted: #667085;
+        --line: rgba(16,24,40,0.08);
+        --primary: #5b5cf6;
+        --primary-soft: #eef0ff;
+        --accent: #11b981;
+        --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .stApp {
+        background: linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
+        color: var(--ink);
+    }
+    [data-testid="stSidebar"] {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(12px);
+    }
+    .block-container {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
+    .glass-card {
+        background: rgba(255,255,255,0.7);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        backdrop-filter: blur(12px);
+    }
+    .hero-badge {
+        display: inline-block;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border: 1px solid rgba(91,92,246,0.12);
+        border-radius: 999px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .hero-title {
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 1.05;
+        letter-spacing: -0.06em;
+        margin: 0;
+        font-weight: 800;
+    }
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: var(--muted);
+        max-width: 700px;
+    }
+    .metric-box {
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+        box-shadow: var(--shadow);
+    }
+    .metric-box strong {
+        font-size: 1.4rem;
+        color: var(--ink);
+    }
+    .chat-message {
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.9);
+    }
+</style>
+"""
+
+dark_theme = """
+<style>
+    .stApp {
+        background: #0b1020;
+        color: #e5e7eb;
+    }
+    [data-testid="stSidebar"] {
+        background: rgba(12,17,28,0.9);
+    }
+    .glass-card, .metric-box {
+        background: rgba(17,24,39,0.9);
+        color: #edf2ff;
+        border: 1px solid rgba(148,163,184,0.18);
+    }
+    .hero-subtitle, .metric-box p {
+        color: #a5b4cf;
     }
     .stChatMessage {
-        background-color: #f0f2f6;
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 0.5rem 0;
+        background: rgba(15, 23, 42, 0.95);
+        color: #edf2ff;
     }
-    </style>
-    """, unsafe_allow_html=True)
+    .chat-message {
+        background: rgba(15,23,42,0.96);
+    }
+</style>
+"""
 
-# Initialize session state
-if 'messages' not in st.session_state:
+if st.session_state.theme == "light":
+    st.markdown(light_theme, unsafe_allow_html=True)
+else:
+    st.markdown(dark_theme, unsafe_allow_html=True)
+
+# ---------- session state ----------
+if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if 'hf_token' not in st.session_state:
+if "hf_token" not in st.session_state:
     st.session_state.hf_token = os.getenv("HF_TOKEN", "")
 
-# Sidebar configuration
+# ---------- sidebar ----------
 with st.sidebar:
-    st.title("⚙️ Settings")
-    
-    # Hugging Face Token input
-    hf_token_input = st.text_input(
-        "Enter your Hugging Face Token",
+    st.markdown("### ⚙️ Workspace")
+    st.caption("Run private AI chat locally with open-source models.")
+    col1, col2 = st.columns([1,1])
+    with col1:
+        if st.button("☀️ Light", use_container_width=True):
+            set_theme("light")
+    with col2:
+        if st.button("🌙 Dark", use_container_width=True):
+            set_theme("dark")
+
+    st.divider()
+
+    st.text_input(
+        "Hugging Face Token",
         value=st.session_state.hf_token,
         type="password",
-        help="Get your token from https://huggingface.co/settings/tokens"
+        help="Get your token from https://huggingface.co/settings/tokens",
+        key="hf_token_input"
     )
-    
-    if hf_token_input:
-        st.session_state.hf_token = hf_token_input
-    
-    # Model selection
+    st.session_state.hf_token = st.session_state.hf_token_input
+
     model = st.selectbox(
-        "Select AI Model",
+        "Model",
         [
             "mistralai/Mistral-7B-Instruct-v0.2",
             "meta-llama/Llama-2-7b-chat-hf",
             "HuggingFaceH4/zephyr-7b-beta",
-            "tiiuae/falcon-7b-instruct"
+            "tiiuae/falcon-7b-instruct",
         ],
-        help="Choose the AI model to use for responses"
+        index=0,
     )
-    
-    # Temperature slider
-    temperature = st.slider(
-        "Temperature (Creativity)",
-        min_value=0.1,
-        max_value=2.0,
-        value=0.7,
-        step=0.1,
-        help="Higher values make output more random/creative"
-    )
-    
-    # Max tokens slider
-    max_tokens = st.slider(
-        "Max Response Length",
-        min_value=50,
-        max_value=1024,
-        value=256,
-        step=50,
-        help="Maximum number of tokens in response"
-    )
-    
-    # Top P slider
-    top_p = st.slider(
-        "Top P (Diversity)",
-        min_value=0.0,
-        max_value=1.0,
-        value=0.95,
-        step=0.05,
-        help="Controls diversity via nucleus sampling"
-    )
-    
+
+    temperature = st.slider("Temperature", 0.1, 2.0, 0.7, 0.1)
+    max_tokens = st.slider("Max Response Length", 50, 1024, 256, 50)
+    top_p = st.slider("Top P", 0.0, 1.0, 0.95, 0.05)
+
     st.divider()
-    
-    # Clear chat button
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
+
+    if st.button("Clear chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
-    
-    # Display chat info
-    st.info(f"📊 Messages in chat: {len(st.session_state.messages)}")
 
-# Main chat interface
-st.title("🤖 ByteBuddy - AI Chatbot")
-st.markdown("*Your intelligent conversation partner powered by Hugging Face*")
+    st.info(f"Messages: {len(st.session_state.messages)}")
 
-# Display chat messages
-for idx, msg in enumerate(st.session_state.messages):
-    if msg['role'] == 'user':
-        st.chat_message("user").write(msg['content'])
+# ---------- hero ----------
+st.markdown("""
+<div class="glass-card">
+    <div class="hero-badge">ByteBuddy • Local AI Studio</div>
+    <h1 class="hero-title">Ship smarter ideas with a private AI assistant.</h1>
+    <p class="hero-subtitle">
+        ByteBuddy helps founders, builders, and teams prototype faster with open-source models,
+        secure local workflows, and a clean chat experience built for daily use.
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown("""
+    <div class="metric-box">
+        <p>⚡</p>
+        <strong>5x</strong>
+        <p>Faster idea iteration</p>
+    </div>
+    """, unsafe_allow_html=True)
+with col2:
+    st.markdown("""
+    <div class="metric-box">
+        <p>🔒</p>
+        <strong>100%</strong>
+        <p>Local-first workflow</p>
+    </div>
+    """, unsafe_allow_html=True)
+with col3:
+    st.markdown("""
+    <div class="metric-box">
+        <p>🤖</p>
+        <strong>4</strong>
+        <p>Open-source models</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------- chat area ----------
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.chat_message("user").write(msg["content"])
     else:
-        st.chat_message("assistant").write(msg['content'])
+        st.chat_message("assistant").write(msg["content"])
 
-# Chat input
 user_input = st.chat_input(
-    "Type your message here...",
-    placeholder="Ask me anything!",
-    disabled=not st.session_state.hf_token
+    "Ask ByteBuddy anything...",
+    placeholder="Type a prompt and hit enter",
+    disabled=not st.session_state.hf_token,
 )
 
 if user_input:
-    # Add user message to session state
     st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    # Display user message
     st.chat_message("user").write(user_input)
-    
-    # Generate AI response
+
     try:
-        with st.spinner("🤔 Thinking..."):
-            # Initialize Hugging Face client
-            client = InferenceClient(
-                model=model,
-                token=st.session_state.hf_token
-            )
-            
-            # Create prompt from conversation history
+        with st.spinner("Thinking..."):
+            client = InferenceClient(model=model, token=st.session_state.hf_token)
             prompt = ""
-            for msg in st.session_state.messages[:-1]:  # Exclude current user message for context
-                role = "User" if msg['role'] == 'user' else "Assistant"
+            for msg in st.session_state.messages[:-1]:
+                role = "User" if msg["role"] == "user" else "Assistant"
                 prompt += f"{role}: {msg['content']}\n"
             prompt += f"User: {user_input}\nAssistant:"
-            
-            # Generate response
             response = client.text_generation(
                 prompt=prompt,
                 temperature=temperature,
                 max_new_tokens=max_tokens,
                 top_p=top_p,
             )
-        
-        assistant_message = response.strip()
-        
-        # Add assistant message to session state
-        st.session_state.messages.append({"role": "assistant", "content": assistant_message})
-        
-        # Display assistant message
-        st.chat_message("assistant").write(assistant_message)
-        
+        assistant = response.strip()
+        st.session_state.messages.append({"role": "assistant", "content": assistant})
+        st.chat_message("assistant").write(assistant)
     except Exception as e:
-        error_message = str(e)
-        if "401" in error_message or "Unauthorized" in error_message:
-            st.error("❌ Authentication Error: Invalid Hugging Face token. Please check your token.")
-        elif "429" in error_message:
-            st.error("⚠️ Rate Limited: Too many requests. Please wait a moment and try again.")
-        elif "model not found" in error_message.lower():
-            st.error(f"❌ Model Error: The selected model is not available. Please choose a different model.")
-        else:
-            st.error(f"❌ An error occurred: {error_message}")
-
-# Footer
-st.divider()
-st.markdown("""
-    <div style="text-align: center; color: gray; font-size: 12px;">
-    <p>ByteBuddy v1.0 | Powered by Hugging Face Inference API</p>
-    <p>Built with ❤️ using Streamlit</p>
-    </div>
-    """, unsafe_allow_html=True)
+        st.error(f"Something went wrong: {str(e)}")
