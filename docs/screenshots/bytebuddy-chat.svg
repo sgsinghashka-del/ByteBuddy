@@ -1,0 +1,61 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="chatA" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E0F2FE"/>
+      <stop offset="1" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <linearGradient id="chatB" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg2)"/>
+  <rect x="90" y="70" width="1420" height="760" rx="26" fill="#FFFFFF" stroke="#E2E8F0"/>
+
+  <rect x="120" y="105" width="250" height="690" rx="20" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="150" y="160" fill="#0F172A" font-family="Arial, sans-serif" font-size="30" font-weight="700">ByteBuddy</text>
+  <text x="150" y="200" fill="#475569" font-family="Arial, sans-serif" font-size="18">AI Chatbot</text>
+
+  <rect x="150" y="250" width="190" height="44" rx="12" fill="#E2E8F0"/>
+  <text x="170" y="277" fill="#1E293B" font-family="Arial, sans-serif" font-size="15">Enter HF Token</text>
+
+  <rect x="150" y="320" width="190" height="48" rx="12" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="170" y="351" fill="#1D4ED8" font-family="Arial, sans-serif" font-size="15">Select AI Model</text>
+
+  <rect x="150" y="404" width="190" height="100" rx="14" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <text x="170" y="438" fill="#0F172A" font-family="Arial, sans-serif" font-size="15">Temperature</text>
+  <rect x="169" y="452" width="152" height="12" rx="6" fill="#CBD5E1"/>
+  <rect x="169" y="452" width="104" height="12" rx="6" fill="#7C3AED"/>
+
+  <rect x="150" y="535" width="190" height="96" rx="14" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <text x="170" y="569" fill="#0F172A" font-family="Arial, sans-serif" font-size="15">Max Response</text>
+  <rect x="169" y="585" width="152" height="12" rx="6" fill="#CBD5E1"/>
+  <rect x="169" y="585" width="108" height="12" rx="6" fill="#22C55E"/>
+
+  <rect x="150" y="665" width="190" height="46" rx="12" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <text x="190" y="695" fill="#0F172A" font-family="Arial, sans-serif" font-size="15">Clear Chat</text>
+
+  <rect x="420" y="105" width="1040" height="690" rx="22" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="455" y="165" fill="#0F172A" font-family="Arial, sans-serif" font-size="38" font-weight="700">🤖 ByteBuddy - AI Chatbot</text>
+  <text x="455" y="205" fill="#64748B" font-family="Arial, sans-serif" font-size="20">Your intelligent conversation partner powered by Hugging Face</text>
+
+  <rect x="455" y="246" width="700" height="122" rx="18" fill="#DBEAFE"/>
+  <text x="490" y="291" fill="#1E3A8A" font-family="Arial, sans-serif" font-size="22" font-weight="700">User</text>
+  <text x="490" y="327" fill="#1E3A8A" font-family="Arial, sans-serif" font-size="18">Can you explain the app in simple terms?</text>
+
+  <rect x="720" y="395" width="700" height="160" rx="18" fill="#E2E8F0"/>
+  <text x="754" y="440" fill="#0F172A" font-family="Arial, sans-serif" font-size="22" font-weight="700">ByteBuddy</text>
+  <text x="754" y="476" fill="#334155" font-family="Arial, sans-serif" font-size="18">This is a lightweight chatbot that connects to</text>
+  <text x="754" y="503" fill="#334155" font-family="Arial, sans-serif" font-size="18">open-source Hugging Face models so you can ask</text>
+  <text x="754" y="530" fill="#334155" font-family="Arial, sans-serif" font-size="18">questions and get real-time AI responses.</text>
+
+  <rect x="455" y="610" width="930" height="104" rx="18" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="490" y="660" fill="#94A3B8" font-family="Arial, sans-serif" font-size="22">Type your message here...</text>
+  <rect x="1280" y="633" width="70" height="42" rx="10" fill="#2563EB"/>
+  <text x="1301" y="661" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="17" font-weight="700">Send</text>
+</svg>
